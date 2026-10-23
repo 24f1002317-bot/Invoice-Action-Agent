@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: invoice-action-agent
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: A2A_BASE_PATH
+        value: /a2a
+      - key: AGENT_BEARER_TOKEN
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: invoice-agent-db
+          property: connectionString
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: PUBLIC_BASE_URL
+        sync: false
+databases:
+  - name: invoice-agent-db
+    plan: basic-256mb
